@@ -8,7 +8,7 @@ import { queryClient } from '~/providers/query-client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 const tokenCache = {
   async getToken(key: string) {
     try {
@@ -33,8 +33,6 @@ if (!publishableKey) {
   );
 }
 export default function Layout() {
-  SplashScreen.preventAutoHideAsync();
-
   const [fontsLoaded] = useFonts({
     Roboto: require('../assets/fonts/Roboto-Regular.ttf'),
     'Roboto-Bold': require('../assets/fonts/Roboto-Bold.ttf'),
@@ -44,13 +42,12 @@ export default function Layout() {
     return null;
   }
 
-  const onLayoutRootView = useCallback(async () => {
+  useEffect(() => {
     if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+      SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
-  // return <Slot onLayout={onLayoutRootView} />;
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>

@@ -45,7 +45,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'Arial', 'sans-serif'], // Default sans-serif fonts
-        udemy: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'], // Udemy-like font stack
+        roboto: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'], // Udemy-like font stack
       },
     },
   },
