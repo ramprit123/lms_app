@@ -4,19 +4,20 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { LogBox } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '~/providers/query-client';
-import '../global.css';
 import { tokenCache } from '../config/tokenCache';
-import { Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StatusBar } from 'expo-status-bar';
+import '../global.css';
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
-
+LogBox.ignoreLogs(['Clerk: Clerk has been loaded with development keys']);
 if (!publishableKey) {
   throw new Error(
     'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env'
   );
 }
+
 export default function Layout() {
   const [fontsLoaded] = useFonts({
     Roboto: require('../assets/fonts/Roboto-Regular.ttf'),
@@ -32,7 +33,6 @@ export default function Layout() {
   }, [fontsLoaded]);
 
   useEffect(() => {
-    console.log('Fonts loaded:', fontsLoaded);
     console.log('Splash screen hidden:', isSplashScreenHidden);
   }, [fontsLoaded, isSplashScreenHidden]);
 
@@ -50,8 +50,8 @@ export default function Layout() {
               contentStyle: { backgroundColor: 'white' },
             }}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="home" options={{ headerShown: false }} />
-            <StatusBar style="auto" />
           </Stack>
         </GestureHandlerRootView>
       </QueryClientProvider>

@@ -22,7 +22,7 @@ const Login = () => {
   } = useMutation({
     mutationFn: (data: { email: string; username: string; password: string; clerkId: string }) =>
       strapiProvider.create('/auth/local/register', data),
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       router.push('/home');
     },
     onError: (error: Error | any) => {
