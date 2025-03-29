@@ -50,6 +50,7 @@ export default function Layout() {
               contentStyle: { backgroundColor: 'white' },
             }}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="home" options={{ headerShown: false }} />
             <StatusBar style="auto" />
           </Stack>
         </GestureHandlerRootView>
