@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 // Strapi API configuration
 const STRAPI_API_URL = process.env.EXPO_PUBLIC_STRAPI_API_URL || 'http://localhost:1337/api'; // Update if deployed
 const STRAPI_API_TOKEN = process.env.EXPO_PUBLIC_STRAPI_API_TOKEN!; // From Strapi admin
+const STRAPI_API_AUTH_URL = 'http://localhost:1337/api/auth/local'; // Update if deployed
 
 // Create an Axios instance for Strapi
 const strapiClient: AxiosInstance = axios.create({

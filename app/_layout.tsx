@@ -1,30 +1,15 @@
-import '../global.css';
 import { ClerkProvider } from '@clerk/clerk-expo';
-import { Slot } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import Constants from 'expo-constants';
-import { Stack } from 'expo-router';
-import { queryClient } from '~/providers/query-client';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback, useEffect } from 'react';
-const tokenCache = {
-  async getToken(key: string) {
-    try {
-      return await SecureStore.getItemAsync(key);
-    } catch (err) {
-      return null;
-    }
-  },
-  async saveToken(key: string, value: string) {
-    try {
-      await SecureStore.setItemAsync(key, value);
-    } catch (err) {
-      console.error('Token save error:', err);
-    }
-  },
-};
+import { useEffect, useState } from 'react';
+import { queryClient } from '~/providers/query-client';
+import '../global.css';
+import { tokenCache } from '../config/tokenCache';
+import { Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
+
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 if (!publishableKey) {
@@ -38,20 +23,36 @@ export default function Layout() {
     'Roboto-Bold': require('../assets/fonts/Roboto-Bold.ttf'),
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  const [isSplashScreenHidden, setSplashScreenHidden] = useState(false);
 
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().then(() => setSplashScreenHidden(true));
     }
   }, [fontsLoaded]);
+
+  useEffect(() => {
+    console.log('Fonts loaded:', fontsLoaded);
+    console.log('Splash screen hidden:', isSplashScreenHidden);
+  }, [fontsLoaded, isSplashScreenHidden]);
+
+  if (!fontsLoaded || !isSplashScreenHidden) {
+    return null;
+  }
 
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
-        <Stack />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: 'white' },
+            }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <StatusBar style="auto" />
+          </Stack>
+        </GestureHandlerRootView>
       </QueryClientProvider>
     </ClerkProvider>
   );
