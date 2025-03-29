@@ -4,8 +4,17 @@ import { randomUUID } from 'expo-crypto';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Lock, Mail } from 'lucide-react-native';
-import { useState } from 'react';
-import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
+import { useState, useEffect } from 'react';
+import {
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from 'react-native';
 import IconButton from '~/components/ButtonWithIcon';
 import TextInputWithIcon from '~/components/TextInputWithIcon';
 import { strapiProvider } from '~/providers/strapi-provider';
@@ -14,6 +23,7 @@ const Login = () => {
   const { startSSOFlow } = useSSO();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const router = useRouter();
   const {
     mutate: register,
@@ -22,7 +32,7 @@ const Login = () => {
   } = useMutation({
     mutationFn: (data: { email: string; username: string; password: string; clerkId: string }) =>
       strapiProvider.create('/auth/local/register', data),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       router.push('/home');
     },
     onError: (error: Error | any) => {
@@ -31,6 +41,20 @@ const Login = () => {
       Alert.alert('Login Error', error.message || 'Invalid credentials');
     },
   });
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true); // or some other action
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false); // or some other action
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const handleSignInWithSSO = async (strategy: 'oauth_google' | 'oauth_apple') => {
     try {
@@ -79,54 +103,58 @@ const Login = () => {
   };
 
   return (
-    <View className={'relative flex-1 justify-center bg-gray-100 px-5'}>
-      <StatusBar style="auto" />
-      <View className={'mb-5 flex items-center justify-center'}>
-        <Image
-          source={require('../../assets/icon.png')}
-          alt="Logo"
-          className="mb-5 h-[120px] w-[120px] rounded-full"
-          resizeMode="cover"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}>
+      <View className={'relative flex-1 justify-center bg-gray-100 px-5'}>
+        <StatusBar style="auto" />
+        <View className={'mb-5 flex items-center justify-center'}>
+          <Image
+            source={require('../../assets/icon.png')}
+            alt="Logo"
+            className={`mb-5 h-[120px] w-[120px] rounded-full ${isKeyboardVisible ? 'h-[80px] w-[80px]' : ''}`}
+            resizeMode="cover"
+          />
+          <Text className={'mb-5 text-center text-2xl font-bold text-slate-700'}>Welcome back</Text>
+        </View>
+        {isError && <Text className={'mb-3 text-center text-red-500'}>{error?.message}</Text>}
+        <TextInputWithIcon
+          placeholder="Email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          icon={<Mail size={24} color="#6b7280" />}
         />
-        <Text className={'mb-5 text-center text-2xl font-bold text-slate-700'}>Welcome back</Text>
-      </View>
-      {isError && <Text className={'mb-3 text-center text-red-500'}>{error?.message}</Text>}
-      <TextInputWithIcon
-        placeholder="Email"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        icon={<Mail size={24} color="#6b7280" />}
-      />
-      <TextInputWithIcon
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        icon={<Lock size={24} color="#6b7280" />}
-      />
-      <TouchableOpacity className={'mb-3 self-end'} onPress={() => router.push('/(auth)/forgot')}>
-        <Text className={'text-blue-500'}>Forgot Password?</Text>
-      </TouchableOpacity>
+        <TextInputWithIcon
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          icon={<Lock size={24} color="#6b7280" />}
+        />
+        <TouchableOpacity className={'mb-3 self-end'} onPress={() => router.push('/(auth)/forgot')}>
+          <Text className={'text-blue-500'}>Forgot Password?</Text>
+        </TouchableOpacity>
 
-      <IconButton text="Sign In" onPress={handleLogin} />
+        <IconButton text="Sign In" onPress={handleLogin} />
 
-      <IconButton
-        text="Continue with Google"
-        iconName="google"
-        onPress={() => handleSignInWithSSO('oauth_google')}
-      />
-      <TouchableOpacity className={'mt-3'} onPress={() => router.push('/(auth)/register')}>
-        <Text className={'text-center text-blue-500'}>
-          Don't have an account? <Text className={'font-bold'}>Register</Text>
+        <IconButton
+          text="Continue with Google"
+          iconName="google"
+          onPress={() => handleSignInWithSSO('oauth_google')}
+        />
+        <TouchableOpacity className={'mt-3'} onPress={() => router.push('/(auth)/register')}>
+          <Text className={'text-center text-blue-500'}>
+            Don't have an account? <Text className={'font-bold'}>Register</Text>
+          </Text>
+        </TouchableOpacity>
+
+        <Text className={'mt-5  text-gray-500'}>
+          By logging in, you agree to our <Text className={'text-blue-500'}>Terms</Text> and{' '}
+          <Text className={'text-blue-500'}>Privacy Policy</Text>.
         </Text>
-      </TouchableOpacity>
-
-      <Text className={'mt-5  text-gray-500'}>
-        By logging in, you agree to our <Text className={'text-blue-500'}>Terms</Text> and{' '}
-        <Text className={'text-blue-500'}>Privacy Policy</Text>.
-      </Text>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 

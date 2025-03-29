@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
 
 // Strapi API configuration
-const STRAPI_API_URL = process.env.EXPO_PUBLIC_STRAPI_API_URL || 'http://localhost:1337/api'; // Update if deployed
+const STRAPI_API_URL =
+  process.env.EXPO_PUBLIC_STRAPI_API_URL || 'https://5fce-45-112-40-146.ngrok-free.app/api'; // Update if deployed
 const STRAPI_API_TOKEN = process.env.EXPO_PUBLIC_STRAPI_API_TOKEN!; // From Strapi admin
 
 // Create an Axios instance for Strapi

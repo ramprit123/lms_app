@@ -1,13 +1,12 @@
 import { ClerkProvider } from '@clerk/clerk-expo';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Slot, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { LogBox } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '~/providers/query-client';
-import { tokenCache } from '../config/tokenCache';
 import '../global.css';
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -24,37 +23,33 @@ export default function Layout() {
     'Roboto-Bold': require('../assets/fonts/Roboto-Bold.ttf'),
   });
 
-  const [isSplashScreenHidden, setSplashScreenHidden] = useState(false);
-
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync().then(() => setSplashScreenHidden(true));
+      SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-
-  useEffect(() => {
-    console.log('Splash screen hidden:', isSplashScreenHidden);
-  }, [fontsLoaded, isSplashScreenHidden]);
-
-  if (!fontsLoaded || !isSplashScreenHidden) {
-    return null;
-  }
 
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: 'white' },
-            }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="home" options={{ headerShown: false }} />
-          </Stack>
-        </GestureHandlerRootView>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: 'white' },
+          }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="home" options={{ headerShown: false }} />
+        </Stack>
       </QueryClientProvider>
+    </ClerkProvider>
+  );
+}
+
+export function RootLayout() {
+  return (
+    <ClerkProvider tokenCache={tokenCache}>
+      <Slot />
     </ClerkProvider>
   );
 }
